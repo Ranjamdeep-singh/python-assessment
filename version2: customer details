@@ -1,0 +1,54 @@
+# version2.py
+from easygui import *
+
+def main_menu():
+    msg = "WELCOME TO KAHWA COFFEE ORDER SYSTEM"
+    title = "Main Menu"
+    choices = ["New Order", "Exit"]
+    choice = choicebox(msg, title, choices)
+    return choice
+
+def get_customer_details(order_type):
+    name = enterbox("Enter Customer Name:", "Customer Information")
+    if name is None:
+        return None
+    
+    if order_type == "Delivery":
+        address = enterbox("Enter Customer Address:", "Customer Information")
+        if address is None:
+            return None
+    else:
+        address = ""
+    
+    phone = enterbox("Enter Customer Phone Number:", "Customer Information")
+    if phone is None:
+        return None
+    
+    return [name, address, phone]
+
+def new_order():
+    order_type = choicebox(
+        "Is the order for PICKUP or DELIVERY?", 
+        "Order Type", 
+        ["Pickup", "Delivery"]
+    )
+    if order_type is None:
+        return
+
+    customer_details = get_customer_details(order_type)
+    if customer_details is None:
+        return
+    
+    msgbox(f"Order type: {order_type}\nCustomer details: {customer_details}", "Order Details")
+
+def main():
+    while True:
+        choice = main_menu()
+        if choice == "New Order":
+            new_order()
+        elif choice == "Exit":
+            msgbox("THANK YOU FOR USING KAHWA COFFEE ORDER SYSTEM!", "Exit")
+            break
+
+if __name__ == "__main__":
+    main()
