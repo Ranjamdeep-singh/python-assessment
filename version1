@@ -1,0 +1,21 @@
+# version1.py
+from easygui import *
+
+def main_menu():
+    msg = "WELCOME TO KAHWA COFFEE ORDER SYSTEM"
+    title = "Main Menu"
+    choices = ["New Order", "Exit"]
+    choice = choicebox(msg, title, choices)
+    return choice
+
+def main():
+    while True:
+        choice = main_menu()
+        if choice == "New Order":
+            msgbox("New order functionality not yet implemented.", "New Order")
+        elif choice == "Exit":
+            msgbox("THANK YOU FOR USING KAHWA COFFEE ORDER SYSTEM!", "Exit")
+            break
+
+if __name__ == "__main__":
+    main()
