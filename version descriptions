@@ -16,3 +16,5 @@
 
 ### Version 5: Complete Order Flow with Confirmation and Cancellation
 - The final version completes the order flow by allowing users to confirm or cancel their order after reviewing the summary. It ensures that users can enter the total amount of beans they want without selecting them repeatedly. This version makes the order process smooth and user-friendly, ready for real-world use.
+
+more detailed descriptions have been added to the final commits of each version
