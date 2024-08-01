@@ -1,0 +1,76 @@
+#version4.py
+
+from easygui import *
+
+def main_menu():
+    choices = ["Start a New Order", "Exit"]
+    return choicebox("Welcome to Kahwa Coffee Order System!\nPlease select an option:", "Kahwa Coffee", choices)
+
+def get_customer_details():
+    delivery_or_pickup = choicebox("Is this order for pickup or delivery?", "Order Type", ["Pickup", "Delivery"])
+    
+    if delivery_or_pickup == "Delivery":
+        details = []
+        details.append(enterbox("Enter customer's name:", "Customer Name"))
+        details.append(enterbox("Enter customer's address:", "Customer Address"))
+        details.append(enterbox("Enter customer's phone number:", "Customer Phone Number"))
+    else:
+        details = [enterbox("Enter customer's name:", "Customer Name")]
+    
+    return delivery_or_pickup, details
+
+bean_types = ["Arabica - $38.50 per kg", "Robusta - $38.50 per kg", "Liberica - $33.50 per kg", "Excelsa - $33.50 per kg"]
+roast_levels = {
+    "Arabica - $38.50 per kg": ["Light", "Medium", "Dark", "Extra Dark"],
+    "Robusta - $38.50 per kg": ["Light", "Medium", "Dark"],
+    "Liberica - $33.50 per kg": ["Light", "Medium", "Dark", "Extra Dark"],
+    "Excelsa - $33.50 per kg": ["Light", "Medium"]
+}
+
+def get_bean_order():
+    total_kg = 0
+    bean_orders = []
+    while total_kg < 5:
+        bean_type = choicebox("Select bean type:", "Bean Type", bean_types)
+        roast_level = choicebox(f"Select roast level for {bean_type}:", "Roast Level", roast_levels[bean_type])
+        quantity = integerbox(f"Enter quantity of {bean_type.split(' - ')[0]} ({5 - total_kg} kg remaining):", "Quantity", lowerbound=1, upperbound=(5 - total_kg))
+        total_kg += quantity
+        grind_option = choicebox("Would you like the beans to be ground?", "Grind Option", ["Yes", "No"])
+        bean_orders.append((bean_type, roast_level, quantity, grind_option))
+        if total_kg >= 5 or choicebox("Would you like to add another type of bean?", "Add More Beans", ["Yes", "No"]) == "No":
+            break
+    return bean_orders
+
+def display_order_summary(order_details, bean_orders, total_cost):
+    summary = f"Customer Name: {order_details[1][0]}\n"
+    if order_details[0] == "Delivery":
+        summary += f"Address: {order_details[1][1]}\nPhone Number: {order_details[1][2]}\n"
+    summary += "\nBeans Ordered:\n"
+    for bean in bean_orders:
+        summary += f"- {bean[0]} ({bean[1]}): {bean[2]} kg (Ground: {bean[3]})\n"
+    summary += f"\nTotal Cost: ${total_cost:.2f}"
+    msgbox(summary, "Order Summary", "Continue")
+
+def calculate_total_cost(bean_orders, is_delivery):
+    total_cost = 0
+    for bean in bean_orders:
+        price_per_kg = float(bean[0].split(' - $')[1].split(' per kg')[0])
+        total_cost += price_per_kg * bean[2]
+    if is_delivery == "Delivery":
+        total_cost += 5
+    return total_cost
+
+def main():
+    while True:
+        choice = main_menu()
+        if choice == "Exit":
+            break
+        if choice == "Start a New Order":
+            order_details = get_customer_details()
+            bean_orders = get_bean_order()
+            total_cost = calculate_total_cost(bean_orders, order_details[0])
+            display_order_summary(order_details, bean_orders, total_cost)
+            if choicebox("Would you like to place another order?", "New Order", ["Yes", "No"]) == "No":
+                break
+
+main()
