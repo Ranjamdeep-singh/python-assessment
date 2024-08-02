@@ -1,8 +1,0 @@
-Summary of Descriptions for Each Version
-Version 1: Added the main menu and collected basic customer details, distinguishing between pickup and delivery orders.
-Version 2: Implemented bean selection functionality with options for different roast levels.
-Version 3: Introduced the option for customers to choose if the beans should be ground and limited the total quantity of beans to 5 kg.
-Version 4: Developed a summary display that shows all order details for customer review.
-Version 5: Enhanced error handling and improved the user interface for a better user experience.
-
-more detailed descriptions have been added to the final commit messages of each version
