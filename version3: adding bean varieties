@@ -38,24 +38,4 @@ def get_bean_order():
         if total_kg >= 5 or choicebox("Would you like to add another type of bean?", "Add More Beans", ["Yes", "No"]) == "No":
             break
     return bean_orders
-
-def display_order_summary(order_details, bean_orders):
-    summary = f"Customer Name: {order_details[1][0]}\n"
-    if order_details[0] == "Delivery":
-        summary += f"Address: {order_details[1][1]}\nPhone Number: {order_details[1][2]}\n"
-    summary += "\nBeans Ordered:\n"
-    for bean in bean_orders:
-        summary += f"- {bean[0]} ({bean[1]}): {bean[2]} kg\n"
-    msgbox(summary, "Order Summary", "Continue")
-
-def main():
-    while True:
-        choice = main_menu()
-        if choice == "Exit":
-            break
-        if choice == "Start a New Order":
-            order_details = get_customer_details()
-            bean_orders = get_bean_order()
-            display_order_summary(order_details, bean_orders)
-
 main()
