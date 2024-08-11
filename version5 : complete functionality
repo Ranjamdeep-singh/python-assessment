@@ -1,6 +1,7 @@
 from easygui import *
 
 def main_menu():
+    # Show the main menu to choose between new order and exit
     msg = "WELCOME TO KAHWA COFFEE ORDER SYSTEM"
     title = "Main Menu"
     choices = ["New Order", "Exit"]
@@ -8,10 +9,12 @@ def main_menu():
     return choice
 
 def get_customer_details(order_type):
+    # Collect customer details based on the order type
     name = enterbox("Enter Customer Name:", "Customer Information")
     if name is None:
         return None
     
+    # Only ask for address if the order is for delivery
     if order_type == "Delivery":
         address = enterbox("Enter Customer Address:", "Customer Information")
         if address is None:
@@ -23,9 +26,11 @@ def get_customer_details(order_type):
     if phone is None:
         return None
     
+    # Return a list with customer details
     return [name, address, phone]
 
 def select_beans():
+    # Show a list of bean options for selection
     msg = "SELECT THE TYPE OF BEANS"
     title = "Bean Varieties"
     choices = [
@@ -47,6 +52,7 @@ def select_beans():
     return choice
 
 def new_order():
+    # Handle the process of creating a new order
     order_type = choicebox(
         "Is the order for PICKUP or DELIVERY?", 
         "Order Type", 
@@ -61,13 +67,18 @@ def new_order():
     
     beans = []
     total_kg = 0
+    
+    # Loop to allow selection of multiple types and quantities of beans
     while total_kg < 5:
         bean_choice = select_beans()
         if bean_choice is None:
             break
+        
+        # Ask for the quantity of beans for the selected type
         kg_choice = enterbox("Enter the amount of beans (kg) for this selection (max 5 kg total):", "Amount of Beans")
         if kg_choice is None:
             break
+        
         try:
             kg_choice = float(kg_choice)
             if kg_choice < 0 or kg_choice > 5 or total_kg + kg_choice > 5:
@@ -80,6 +91,7 @@ def new_order():
         beans.append((bean_choice, kg_choice))
         total_kg += kg_choice
         
+        # Option to add more beans until the limit is reached
         if not ynbox("Do you want to add more beans?", "Add More Beans", ["Yes", "No"]) or total_kg >= 5:
             break
 
@@ -87,6 +99,7 @@ def new_order():
         msgbox("NO BEANS SELECTED. ORDER CANCELLED.", "Order Cancelled")
         return
     
+    # Ask whether the beans should be ground or whole
     grind_choice = choicebox(
         "Do you want the beans to be GROUND or WHOLE?", 
         "Grind Option", 
@@ -95,6 +108,7 @@ def new_order():
     if grind_choice is None:
         return
 
+    # Calculate the total cost and prepare order summary
     total_cost = 0
     order_summary = []
     for bean, kg in beans:
@@ -105,6 +119,7 @@ def new_order():
         total_cost += cost
         order_summary.append(f"{bean_type} ({bean_details[1]}): {kg} kg @ ${bean_cost:.2f}/kg = ${cost:.2f}")
     
+    # Add delivery charge if applicable
     if order_type == "Delivery":
         total_cost += 5
         order_summary.append("Delivery Charge: $5.00")
@@ -119,6 +134,7 @@ def new_order():
     msgbox("\n".join(order_summary), "Order Summary")
 
 def main():
+    # Main loop to keep the program running until exit
     while True:
         choice = main_menu()
         
@@ -130,5 +146,6 @@ def main():
         else:
             break
 
+# Start the program
 if __name__ == "__main__":
     main()
