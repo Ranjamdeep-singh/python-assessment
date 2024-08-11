@@ -1,7 +1,7 @@
 from easygui import *
 
 def main_menu():
-    # Show the main menu to choose between new order and exit
+    # Display the main menu with options for starting a new order or exiting the program
     msg = "WELCOME TO KAHWA COFFEE ORDER SYSTEM"
     title = "Main Menu"
     choices = ["New Order", "Exit"]
@@ -9,7 +9,7 @@ def main_menu():
     return choice
 
 def get_customer_details(order_type):
-    # Collect customer details based on the order type
+    # Collect customer details based on the order type (Pickup or Delivery)
     name = enterbox("Enter Customer Name:", "Customer Information")
     if name is None:
         return None
@@ -26,11 +26,10 @@ def get_customer_details(order_type):
     if phone is None:
         return None
     
-    # Return a list with customer details
     return [name, address, phone]
 
 def select_beans():
-    # Show a list of bean options for selection
+    # Display options for selecting the type of beans and their roasting levels
     msg = "SELECT THE TYPE OF BEANS"
     title = "Bean Varieties"
     choices = [
@@ -52,7 +51,7 @@ def select_beans():
     return choice
 
 def new_order():
-    # Handle the process of creating a new order
+    # Start a new order by selecting the order type and collecting details
     order_type = choicebox(
         "Is the order for PICKUP or DELIVERY?", 
         "Order Type", 
@@ -61,26 +60,27 @@ def new_order():
     if order_type is None:
         return
 
+    # Get customer details based on order type
     customer_details = get_customer_details(order_type)
     if customer_details is None:
         return
     
     beans = []
     total_kg = 0
-    
-    # Loop to allow selection of multiple types and quantities of beans
+
+    # Loop to allow multiple bean selections while ensuring total weight does not exceed 5 kg
     while total_kg < 5:
         bean_choice = select_beans()
         if bean_choice is None:
             break
         
-        # Ask for the quantity of beans for the selected type
+        # Collect the amount of beans for the selected type
         kg_choice = enterbox("Enter the amount of beans (kg) for this selection (max 5 kg total):", "Amount of Beans")
         if kg_choice is None:
             break
-        
         try:
             kg_choice = float(kg_choice)
+            # Validate bean quantity to ensure it is within the allowed range and total weight is not exceeded
             if kg_choice < 0 or kg_choice > 5 or total_kg + kg_choice > 5:
                 msgbox("Invalid amount. Please enter a number between 0 and 5, ensuring the total is not more than 5 kg.")
                 continue
@@ -91,15 +91,16 @@ def new_order():
         beans.append((bean_choice, kg_choice))
         total_kg += kg_choice
         
-        # Option to add more beans until the limit is reached
+        # Option to add more beans or finish the selection
         if not ynbox("Do you want to add more beans?", "Add More Beans", ["Yes", "No"]) or total_kg >= 5:
             break
 
+    # Handle the case where no beans were selected
     if not beans:
         msgbox("NO BEANS SELECTED. ORDER CANCELLED.", "Order Cancelled")
         return
     
-    # Ask whether the beans should be ground or whole
+    # Get the grind option from the user
     grind_choice = choicebox(
         "Do you want the beans to be GROUND or WHOLE?", 
         "Grind Option", 
@@ -108,9 +109,10 @@ def new_order():
     if grind_choice is None:
         return
 
-    # Calculate the total cost and prepare order summary
     total_cost = 0
     order_summary = []
+    
+    # Calculate the cost of the order and prepare the order summary
     for bean, kg in beans:
         bean_details = bean.split(" - ")
         bean_type = bean_details[0]
@@ -124,6 +126,7 @@ def new_order():
         total_cost += 5
         order_summary.append("Delivery Charge: $5.00")
     
+    # Finalize the order summary with total cost and customer details
     order_summary.append(f"Total Cost: ${total_cost:.2f}")
     order_summary.append(f"Customer Name: {customer_details[0]}")
     if order_type == "Delivery":
@@ -131,10 +134,11 @@ def new_order():
     order_summary.append(f"Phone Number: {customer_details[2]}")
     order_summary.append(f"Grind Option: {grind_choice}")
     
+    # Display the complete order summary to the user
     msgbox("\n".join(order_summary), "Order Summary")
 
 def main():
-    # Main loop to keep the program running until exit
+    # Main loop to handle multiple orders and provide an exit option
     while True:
         choice = main_menu()
         
@@ -146,6 +150,5 @@ def main():
         else:
             break
 
-# Start the program
 if __name__ == "__main__":
     main()
