@@ -1,7 +1,13 @@
 from easygui import *
 
+# Constants for prices and limits
+BEAN_PRICE_ARABICA = 38.50
+BEAN_PRICE_LIBERICA = 33.50
+MAX_BEANS_KG = 5
+DELIVERY_CHARGE = 5
+
 def main_menu():
-    # Display the main menu with options for starting a new order or exiting the program
+    """Display the main menu with options for starting a new order or exiting the program."""
     msg = "WELCOME TO KAHWA COFFEE ORDER SYSTEM"
     title = "Main Menu"
     choices = ["New Order", "Exit"]
@@ -9,12 +15,11 @@ def main_menu():
     return choice
 
 def get_customer_details(order_type):
-    # Collect customer details based on the order type (Pickup or Delivery)
+    """Collect customer details based on the order type (Pickup or Delivery)."""
     name = enterbox("Enter Customer Name:", "Customer Information")
     if name is None:
         return None
     
-    # Only ask for address if the order is for delivery
     if order_type == "Delivery":
         address = enterbox("Enter Customer Address:", "Customer Information")
         if address is None:
@@ -29,29 +34,29 @@ def get_customer_details(order_type):
     return [name, address, phone]
 
 def select_beans():
-    # Display options for selecting the type of beans and their roasting levels
+    """Display options for selecting the type of beans and their roasting levels."""
     msg = "SELECT THE TYPE OF BEANS"
     title = "Bean Varieties"
     choices = [
-        "Arabica - Light Roast - $38.50/kg",
-        "Arabica - Medium Roast - $38.50/kg",
-        "Arabica - Dark Roast - $38.50/kg",
-        "Arabica - Extra Dark Roast - $38.50/kg",
-        "Robusta - Light Roast - $38.50/kg",
-        "Robusta - Medium Roast - $38.50/kg",
-        "Robusta - Dark Roast - $38.50/kg",
-        "Liberica - Light Roast - $33.50/kg",
-        "Liberica - Medium Roast - $33.50/kg",
-        "Liberica - Dark Roast - $33.50/kg",
-        "Liberica - Extra Dark Roast - $33.50/kg",
-        "Excelsa - Light Roast - $33.50/kg",
-        "Excelsa - Medium Roast - $33.50/kg"
+        f"Arabica - Light Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Arabica - Medium Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Arabica - Dark Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Arabica - Extra Dark Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Robusta - Light Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Robusta - Medium Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Robusta - Dark Roast - ${BEAN_PRICE_ARABICA:.2f}/kg",
+        f"Liberica - Light Roast - ${BEAN_PRICE_LIBERICA:.2f}/kg",
+        f"Liberica - Medium Roast - ${BEAN_PRICE_LIBERICA:.2f}/kg",
+        f"Liberica - Dark Roast - ${BEAN_PRICE_LIBERICA:.2f}/kg",
+        f"Liberica - Extra Dark Roast - ${BEAN_PRICE_LIBERICA:.2f}/kg",
+        f"Excelsa - Light Roast - ${BEAN_PRICE_LIBERICA:.2f}/kg",
+        f"Excelsa - Medium Roast - ${BEAN_PRICE_LIBERICA:.2f}/kg"
     ]
     choice = choicebox(msg, title, choices)
     return choice
 
 def new_order():
-    # Start a new order by selecting the order type and collecting details
+    """Start a new order by selecting the order type and collecting details."""
     order_type = choicebox(
         "Is the order for PICKUP or DELIVERY?", 
         "Order Type", 
@@ -60,7 +65,6 @@ def new_order():
     if order_type is None:
         return
 
-    # Get customer details based on order type
     customer_details = get_customer_details(order_type)
     if customer_details is None:
         return
@@ -68,21 +72,18 @@ def new_order():
     beans = []
     total_kg = 0
 
-    # Loop to allow multiple bean selections while ensuring total weight does not exceed 5 kg
-    while total_kg < 5:
+    while total_kg < MAX_BEANS_KG:
         bean_choice = select_beans()
         if bean_choice is None:
             break
         
-        # Collect the amount of beans for the selected type
         kg_choice = enterbox("Enter the amount of beans (kg) for this selection (max 5 kg total):", "Amount of Beans")
         if kg_choice is None:
             break
         try:
             kg_choice = float(kg_choice)
-            # Validate bean quantity to ensure it is within the allowed range and total weight is not exceeded
-            if kg_choice < 0 or kg_choice > 5 or total_kg + kg_choice > 5:
-                msgbox("Invalid amount. Please enter a number between 0 and 5, ensuring the total is not more than 5 kg.")
+            if kg_choice < 0 or kg_choice > MAX_BEANS_KG or total_kg + kg_choice > MAX_BEANS_KG:
+                msgbox(f"Invalid amount. Please enter a number between 0 and {MAX_BEANS_KG}, ensuring the total is not more than {MAX_BEANS_KG} kg.")
                 continue
         except ValueError:
             msgbox("Invalid input. Please enter a valid number.")
@@ -91,16 +92,13 @@ def new_order():
         beans.append((bean_choice, kg_choice))
         total_kg += kg_choice
         
-        # Option to add more beans or finish the selection
-        if not ynbox("Do you want to add more beans?", "Add More Beans", ["Yes", "No"]) or total_kg >= 5:
+        if not ynbox("Do you want to add more beans?", "Add More Beans", ["Yes", "No"]) or total_kg >= MAX_BEANS_KG:
             break
 
-    # Handle the case where no beans were selected
     if not beans:
         msgbox("NO BEANS SELECTED. ORDER CANCELLED.", "Order Cancelled")
         return
     
-    # Get the grind option from the user
     grind_choice = choicebox(
         "Do you want the beans to be GROUND or WHOLE?", 
         "Grind Option", 
@@ -112,7 +110,6 @@ def new_order():
     total_cost = 0
     order_summary = []
     
-    # Calculate the cost of the order and prepare the order summary
     for bean, kg in beans:
         bean_details = bean.split(" - ")
         bean_type = bean_details[0]
@@ -121,12 +118,10 @@ def new_order():
         total_cost += cost
         order_summary.append(f"{bean_type} ({bean_details[1]}): {kg} kg @ ${bean_cost:.2f}/kg = ${cost:.2f}")
     
-    # Add delivery charge if applicable
     if order_type == "Delivery":
-        total_cost += 5
-        order_summary.append("Delivery Charge: $5.00")
+        total_cost += DELIVERY_CHARGE
+        order_summary.append(f"Delivery Charge: ${DELIVERY_CHARGE:.2f}")
     
-    # Finalize the order summary with total cost and customer details
     order_summary.append(f"Total Cost: ${total_cost:.2f}")
     order_summary.append(f"Customer Name: {customer_details[0]}")
     if order_type == "Delivery":
@@ -134,11 +129,10 @@ def new_order():
     order_summary.append(f"Phone Number: {customer_details[2]}")
     order_summary.append(f"Grind Option: {grind_choice}")
     
-    # Display the complete order summary to the user
     msgbox("\n".join(order_summary), "Order Summary")
 
 def main():
-    # Main loop to handle multiple orders and provide an exit option
+    """Main loop to handle multiple orders and provide an exit option."""
     while True:
         choice = main_menu()
         
