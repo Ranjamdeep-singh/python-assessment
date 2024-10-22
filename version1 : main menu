@@ -2,11 +2,20 @@
 from easygui import *
 
 def main_menu():
-    choices = ["Start a New Order", "Exit"]
-    return choicebox("Welcome to Kahwa Coffee Order System!\nPlease select an option:", "Kahwa Coffee", choices)
+    msg = "WELCOME TO KAHWA COFFEE ORDER SYSTEM"
+    title = "Main Menu"
+    choices = ["New Order", "Exit"]
+    choice = choicebox(msg, title, choices)
+    return choice
 
 def main():
     while True:
         choice = main_menu()
-        if choice == "Exit":
+        if choice == "New Order":
+            msgbox("New order functionality not yet implemented.", "New Order")
+        elif choice == "Exit":
+            msgbox("THANK YOU FOR USING KAHWA COFFEE ORDER SYSTEM!", "Exit")
             break
+
+if __name__ == "__main__":
+    main()
