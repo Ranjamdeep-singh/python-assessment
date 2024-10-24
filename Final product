@@ -1,0 +1,171 @@
+
+        # Confirm the entered details
+        if ynbox(f"Is this information correct?\n\n{details}", "Confirm Customer Information", ["Yes", "No"]):
+            return [name, address, phone]
+        # If the user chooses "No", they can re-enter their details
+
+def select_beans():
+    # Display options for selecting the type of beans
+    bean_types = [
+        "Arabica",
+        "Robusta",
+        "Liberica",
+        "Excelsa"
+    ]
+    bean_type = choicebox(
+        "SELECT THE TYPE OF BEANS",
+        "Bean Varieties",
+        bean_types
+    )
+    
+    if bean_type is None:
+        return None
+    
+    # Display options for selecting the roast level based on the chosen bean type
+    roast_levels = {
+        "Arabica": [
+            "Light Roast - $38.50/kg",
+            "Medium Roast - $38.50/kg",
+            "Dark Roast - $38.50/kg",
+            "Extra Dark Roast - $38.50/kg"
+        ],
+        "Robusta": [
+            "Light Roast - $38.50/kg",
+            "Medium Roast - $38.50/kg",
+            "Dark Roast - $38.50/kg"
+        ],
+        "Liberica": [
+            "Light Roast - $33.50/kg",
+            "Medium Roast - $33.50/kg",
+            "Dark Roast - $33.50/kg",
+            "Extra Dark Roast - $33.50/kg"
+        ],
+        "Excelsa": [
+            "Light Roast - $33.50/kg",
+            "Medium Roast - $33.50/kg",
+            "Dark Roast - $33.50/kg",
+            "Extra Dark Roast - $33.50/kg"
+            
+        ]
+    }
+    
+    if bean_type in roast_levels:
+        roast_choice = choicebox(
+            "SELECT THE ROAST LEVEL",
+            "Roast Level",
+            roast_levels[bean_type]
+        )
+        if roast_choice is None:
+            return None
+        
+        return f"{bean_type} - {roast_choice}"
+    else:
+        return None
+
+def new_order():
+    # Start a new order by selecting the order type and collecting details
+    order_type = choicebox(
+        "Is the order for PICKUP or DELIVERY?", 
+        "Order Type", 
+        ["Pickup", "Delivery"]
+    )
+    if order_type is None:
+        return
+
+    # Get customer details based on order type
+    customer_details = get_customer_details(order_type)
+    if customer_details is None:
+        return
+    
+    beans = []
+    total_kg = 0
+
+    # Loop to allow multiple bean selections while ensuring total weight does not exceed 5 kg
+    while total_kg < 5:
+        bean_choice = select_beans()
+        if bean_choice is None:
+            break
+        
+        # Display remaining quantity in the prompt
+        remaining_kg = 5 - total_kg
+        kg_prompt = f"Enter the amount of beans (kg) for this selection, max {remaining_kg:.2f} kg remaining:"
+        kg_choice = enterbox(kg_prompt, "Amount of Beans")
+        if kg_choice is None:
+            break
+        try:
+            kg_choice = float(kg_choice)
+            # Validate bean quantity to ensure it is within the allowed range and total weight is not exceeded
+            if kg_choice < 0 or kg_choice > remaining_kg:
+                msgbox(f"Invalid amount. Please enter a number between 0 and {remaining_kg:.2f}, ensuring the total is not more than 5 kg.")
+                continue
+        except ValueError:
+            msgbox("Invalid input. Please enter a valid number.")
+            continue
+        
+        beans.append((bean_choice, kg_choice))
+        total_kg += kg_choice
+        
+        # Skip the "add more beans" prompt if the total weight reaches 5 kg
+        if total_kg >= 5:
+            break
+        # Option to add more beans or finish the selection
+        if not ynbox("Do you want to add more beans?", "Add More Beans", ["Yes", "No"]):
+            break
+
+    # Handle the case where no beans were selected
+    if not beans:
+        msgbox("NO BEANS SELECTED. ORDER CANCELLED.", "Order Cancelled")
+        return
+    
+    # Get the grind option from the user
+    grind_choice = choicebox(
+        "Do you want the beans to be GROUND or WHOLE?", 
+        "Grind Option", 
+        ["Ground", "Whole"]
+    )
+    if grind_choice is None:
+        return
+
+    total_cost = 0
+    order_summary = []
+    
+    # Calculate the cost of the order and prepare the order summary
+    for bean, kg in beans:
+        bean_details = bean.split(" - ")
+        bean_type = bean_details[0]
+        bean_cost = float(bean_details[-1].replace("$", "").replace("/kg", ""))
+        cost = bean_cost * kg
+        total_cost += cost
+        order_summary.append(f"{bean_type} ({bean_details[1]}): {kg} kg @ ${bean_cost:.2f}/kg = ${cost:.2f}")
+    
+    # Add delivery charge if applicable
+    if order_type == "Delivery":
+        total_cost += 5
+        order_summary.append("Delivery Charge: $5.00")
+    
+    # Finalize the order summary with total cost and customer details
+    order_summary.append(f"Total Cost: ${total_cost:.2f}")
+    order_summary.append(f"Customer Name: {customer_details[0]}")
+    if order_type == "Delivery":
+        order_summary.append(f"Address: {customer_details[1]}")
+    order_summary.append(f"Phone Number: {customer_details[2]}")
+    order_summary.append(f"Grind Option: {grind_choice}")
+    
+    # Display the complete order summary to the user
+    msgbox("\n".join(order_summary), "Order Summary")
+
+def main():
+    # Main loop to handle multiple orders and provide an exit option
+    while True:
+        choice = main_menu()
+        
+        if choice == "New Order":
+            new_order()
+        elif choice == "Exit":
+            msgbox("THANK YOU FOR USING KAHWA COFFEE ORDER SYSTEM!", "Exit")
+            break
+        else:
+            break
+
+if __name__ == "__main__":
+    main()
